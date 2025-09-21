@@ -21,13 +21,19 @@ export function Login() {
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
-            navigate("/Conocenos");
+            navigate("/Reportes");
         } catch (error) {
             alert(error.message);
         }
     }
 
     return (
+        <>
+            <div className=" flex bg-green-700 p-4">
+                <img src="/LogoUABC-60x82.png" alt="Logo" className="ml-7"/>
+                <h1 className="flex ml-8 text-2xl p-5">UNIVERSIDAD AUTONOMA DE BAJA CALIFORNIA</h1>
+            </div>
+
         <div className="flex items-center justify-center min-h-screen bg-neutral-950 p-4">
             <AuthForm mode="login"
                         onSubmit={handleLogin}
@@ -38,10 +44,11 @@ export function Login() {
                                     onClick={() => navigate('/registro')}>
                                ¿No tienes cuenta? Registrate
                             </Button>
-                        }/>
+                        }
+            />
         </div>
+        </>
     )
-
-}
+};
 
 
