@@ -1,21 +1,39 @@
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
+import {  GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {auth} from "./lib/firebase.ts";
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 import {AuthForm} from "@/AuthForm.tsx";
+import { login } from "@/lib/auth.ts";
+import { useState } from "react";
 
 export function Login() {
     const navigate = useNavigate()
+    const [errorMessage, setErrorMessage] = useState("")
 
-    const handleLogin = async ({email, password} : {email: string, password: string}) => {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            console.log("Usuario registrado:", user);
-        } catch (error) {
-            console.error("Error al registrar usuario:", error);
-        }
-    }
+    const handleLogin = async ({email, password}: {email: string, password: string}) => {
+        const result = await login(email, password);
+        if (result.error) {
+            switch (result.code) {
+                case 'auth/user-not-found':
+                    setErrorMessage("Usuario no encontrado.");
+                    break;
+                case 'auth/wrong-password':
+                    setErrorMessage("Contraseña incorrecta.");
+                    break;
+                case 'auth/invalid-email':
+                    setErrorMessage("El correo electrónico no es válido.");
+                    break;
+                case 'auth/user-disabled':
+                    setErrorMessage("El usuario ha sido deshabilitado.");
+                    break;
+                default:
+                    setErrorMessage("Error al iniciar sesión: " + result.error);
+            }
+            return;
+            }
+            setErrorMessage("");
+        navigate("/Reportes");
+    };
 
     const handleGoogleSignIn = async () => {
         const provider = new GoogleAuthProvider();
@@ -23,32 +41,30 @@ export function Login() {
             await signInWithPopup(auth, provider);
             navigate("/Reportes");
         } catch (error) {
-            alert(error.message);
+            if (error instanceof Error) {
+            console.log (error.message);
+        } else
+            console.log(error);
         }
     }
 
     return (
         <>
-            <div className=" flex bg-green-700 p-4">
-                <img src="/LogoUABC-60x82.png" alt="Logo" className="ml-7"/>
-                <h1 className="flex ml-8 text-2xl p-5">UNIVERSIDAD AUTONOMA DE BAJA CALIFORNIA</h1>
+            <div className="flex items-center justify-center min-h-screen bg-neutral-950 p-4">
+                <AuthForm
+                    mode="login"
+                    onSubmit={handleLogin}
+                    onGoogleSignIn={handleGoogleSignIn}
+                    errorMessage={errorMessage}
+                    extraHeaderButton={
+                        <Button variant="link" className="text-white" onClick={() => navigate('/registro')}>
+                            ¿No tienes cuenta? Regístrate
+                        </Button>
+                    }
+                />
             </div>
-
-        <div className="flex items-center justify-center min-h-screen bg-neutral-950 p-4">
-            <AuthForm mode="login"
-                        onSubmit={handleLogin}
-                        onGoogleSignIn={handleGoogleSignIn}
-                      extraHeaderButton={
-                            <Button variant="link"
-                                    className="text-white"
-                                    onClick={() => navigate('/registro')}>
-                               ¿No tienes cuenta? Registrate
-                            </Button>
-                        }
-            />
-        </div>
         </>
     )
-};
+}
 
 

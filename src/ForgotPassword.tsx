@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { getAuth, sendPasswordResetEmail} from "firebase/auth";
-import {Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
     const handlePasswordReset = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -23,11 +24,6 @@ export function ForgotPassword() {
 
     return (
         <>
-            <div className=" flex bg-green-500 p-4">
-                <img src="/LogoUABC-60x82.png" alt="Logo" className="ml-7"/>
-                <h1 className="flex ml-8 text-2xl p-5">UNIVERSIDAD AUTONOMA DE BAJA CALIFORNIA</h1>
-            </div>
-
             <div className="flex items-center justify-center min-h-screen bg-neutral-950 p-4">
                 <div className="w-full max-w-sm bg-neutral-900 text-white rounded-lg shadow-lg p-6">
                     <h2 className="text-2xl mb-4">Recuperar Contraseña</h2>
@@ -50,8 +46,10 @@ export function ForgotPassword() {
                         >
                             Enviar correo de restablecimiento
                         </button>
-                        <button type="button" className="mt-2">
-                            <Link to="/login" className="text-white hover:underline">Regresar al inicio de sesión</Link>
+                        <button type="button"
+                            onClick={() => navigate('/')}
+                                className="mt-2 bg-sky-700 hover:bg-sky-950 text-white font-bold py-2 px-4 rounded-full">
+                            Regresar al inicio de sesión
                         </button>
                     </form>
                     {message && <p className="mt-4">{message}</p>}
